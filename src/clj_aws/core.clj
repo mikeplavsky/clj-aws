@@ -1,7 +1,8 @@
 (ns clj-aws.core)
 (import 'com.amazonaws.auth.BasicAWSCredentials)
 (import '(com.amazonaws.services.ec2 AmazonEC2Client)
-        '(com.amazonaws.services.ec2.model DescribeSnapshotsRequest))
+        '(com.amazonaws.services.ec2.model DescribeSnapshotsRequest)
+        '(com.amazonaws.services.ec2.model DescribeVolumesRequest))
 
 (defn creds 
   []
@@ -17,6 +18,11 @@
     (.describeSnapshots (DescribeSnapshotsRequest.))
     .getSnapshots))
 
+(defn volumes 
+  []
+  (-> (ec2)
+    (.describeVolumes (DescribeVolumesRequest.))
+    .getVolumes))
 
 (defn -main
   "I don't do a whole lot ... yet."
