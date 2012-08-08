@@ -28,7 +28,7 @@
 (defn images 
   []
   (-> (ec2)
-    (.describeImages (DescribeImagesRequest.))
+    (.describeImages (doto (DescribeImagesRequest.) (.setOwners ["758139277749"])))
     .getImages))
 
 (defn -main
