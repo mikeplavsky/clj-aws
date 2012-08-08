@@ -27,9 +27,10 @@
 
 (defn images 
   []
-  (-> (ec2)
+  (let [i (-> (ec2)
     (.describeImages (doto (DescribeImagesRequest.) (.setOwners ["758139277749"])))
-    .getImages))
+    .getImages)]
+    (apply sorted-set (map #(:imageId (bean %)) i))))
 
 (defn -main
   "I don't do a whole lot ... yet."
