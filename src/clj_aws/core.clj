@@ -16,7 +16,7 @@
 (defn snapshots 
   []
   (-> (ec2)
-    (.describeSnapshots (DescribeSnapshotsRequest.))
+    (.describeSnapshots (doto (DescribeSnapshotsRequest.) (.withOwnerIds ["758139277749"])))
     .getSnapshots))
 
 (defn volumes 
@@ -31,6 +31,18 @@
     (.describeImages (doto (DescribeImagesRequest.) (.setOwners ["758139277749"])))
     .getImages)]
     (apply sorted-set (map #(:imageId (bean %)) i))))
+
+(defn snapshots-amis
+  []
+  (let [ami (images)
+        s (snapshots)]
+     (filter #(->> % 
+                bean 
+                :description 
+                (re-find #"(ami-[\w]+)") 
+                second 
+                ami 
+                not) s))) 
 
 (defn -main
   "I don't do a whole lot ... yet."
