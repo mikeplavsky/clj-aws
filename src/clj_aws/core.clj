@@ -2,8 +2,11 @@
 (import 'com.amazonaws.auth.BasicAWSCredentials)
 (import '(com.amazonaws.services.ec2 AmazonEC2Client)
         '(com.amazonaws.services.ec2.model DescribeSnapshotsRequest)
+        '(com.amazonaws.services.ec2.model DeleteSnapshotRequest)
         '(com.amazonaws.services.ec2.model DescribeImagesRequest)
         '(com.amazonaws.services.ec2.model DescribeVolumesRequest))
+
+(def owner "758139277749")
 
 (defn creds 
   []
@@ -16,7 +19,7 @@
 (defn snapshots 
   []
   (-> (ec2)
-    (.describeSnapshots (doto (DescribeSnapshotsRequest.) (.withOwnerIds ["758139277749"])))
+    (.describeSnapshots (doto (DescribeSnapshotsRequest.) (.withOwnerIds [owner])))
     .getSnapshots))
 
 (defn volumes 
@@ -28,11 +31,11 @@
 (defn images 
   []
   (let [i (-> (ec2)
-    (.describeImages (doto (DescribeImagesRequest.) (.setOwners ["758139277749"])))
+    (.describeImages (doto (DescribeImagesRequest.) (.setOwners [owner])))
     .getImages)]
     (apply sorted-set (map #(:imageId (bean %)) i))))
 
-(defn snapshots-amis
+(defn unused-snapshots
   []
   (let [ami (images)
         s (snapshots)]
@@ -44,7 +47,15 @@
                 ami 
                 not) s))) 
 
+(defn delete-snapshot
+  [id]
+  (-> (ec2)
+    (.deleteSnapshot (doto (DeleteSnapshotRequest.) (.setSnapshotId id)))))
+
+(defn delete-unused-snapshots
+  []
+  (map #(delete-snapshot (.getSnapshotId %)) (unused-snapshots)))
+
 (defn -main
-  "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!"))
+  ())
